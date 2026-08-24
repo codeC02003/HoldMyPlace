@@ -2,19 +2,42 @@
 
 **What if a stockout didn't just end in a refund?**
 
-I ordered a Costco delivery, paid for it, and then got told afterwards that some
-of it was out of stock and I'd be refunded. Which is fine, I guess. But it
-bothered me that the refund is where the story stops. At that moment the
-retailer is sitting on a genuinely useful fact — here is somebody who already
-proved they'll pay this price, for this item, at this address — and it just
-gets thrown away.
+I'm an international student, so almost all of my shopping happens in bulk.
+It's cheaper per unit, it means fewer trips, and when you don't have a car every
+trip costs you something. So my roommate and I put together a big Costco
+delivery order — the usual staples, plus four packs of water bottles, which
+between two of us is about a month of not having to think about water.
 
-So I built a model of a better ending.
+We paid. Then the notification came through: the water bottles were unavailable,
+and that part of the order would be refunded.
 
-This repo is a simulation and a unit-economics model. It is not a product, and
-I mainly wrote it to find out where my own idea was wrong. It was wrong in five
-places. They're all written up below, including the one that would have killed
-the whole thing if I'd trusted my first metric.
+The refund wasn't the problem. What came after was. We spent the next couple of
+days going store to store trying to find the same thing again — same number of
+bottles, roughly the same price per unit. Nothing lined up. Every place had a
+slightly different pack size at a worse rate. In the end we gave up and bought a
+pack that cost more and had fewer bottles in it, which is precisely the opposite
+of why anyone buys in bulk.
+
+The bit that stayed with me was this. We were checking shelves by hand, store by
+store, and Costco already knew where its own water was. Somewhere in their
+system there's a number for how many packs are sitting in every other warehouse
+in the region. We were running a search manually, badly, with no information,
+that they could have done instantly.
+
+So — what if the refund wasn't where it ended? What if the system checked the
+other warehouses before giving up on me? And if the item genuinely wasn't
+anywhere nearby, what if I could just keep my place in line for it instead of
+starting from scratch as a customer? At that moment the retailer is holding a
+genuinely useful fact about me, that I'll pay this price for this item at this
+address, and a refund throws it in the bin.
+
+That's the idea. The rest of this is me finding out whether it survives contact
+with the numbers.
+
+What's here is a simulation and a unit-economics model, not a product. I mostly
+wrote it to work out where my own idea was wrong, and it was wrong in five
+places. They're all below, including the one that would have killed the whole
+thing if I'd trusted my first metric.
 
 ```bash
 python -m holdmyplace.sim.run --days 90                 # one run
