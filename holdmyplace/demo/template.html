@@ -1,0 +1,1068 @@
+<title>The Claim Screen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --ground:      #EBEEEC;
+    --surface:     #FFFFFF;
+    --panel:       #F4F6F4;
+    --ink:         #14201E;
+    --muted:       #596562;
+    --faint:       #8A9490;
+    --rule:        #DBDFDC;
+    --rule-soft:   #E8EBE8;
+    --accent:      #0F5C55;
+    --accent-ink:  #0F5C55;
+    --accent-soft: #E0EEEB;
+    --on-accent:   #FFFFFF;
+    --pos:         #2C6B45;
+    --pos-soft:    #E4EDE6;
+    --warn:        #8A5A0B;
+    --warn-soft:   #F4EBDA;
+    --neg:         #963226;
+    --neg-soft:    #F4E4E1;
+    --shadow:      0 1px 2px rgba(20, 32, 30, .06), 0 8px 24px rgba(20, 32, 30, .05);
+
+    --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #0F1413;
+      --surface:     #1A2120;
+      --panel:       #151B1A;
+      --ink:         #E6EBE9;
+      --muted:       #97A29E;
+      --faint:       #6F7C78;
+      --rule:        #2B3533;
+      --rule-soft:   #222B29;
+      --accent:      #4FB3A6;
+      --accent-ink:  #6FC7BB;
+      --accent-soft: #16302C;
+      --on-accent:   #0F1413;
+      --pos:         #74C08F;
+      --pos-soft:    #17291D;
+      --warn:        #D9A44A;
+      --warn-soft:   #2C2415;
+      --neg:         #DE8878;
+      --neg-soft:    #2E1E1B;
+      --shadow:      0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:      #0F1413;
+    --surface:     #1A2120;
+    --panel:       #151B1A;
+    --ink:         #E6EBE9;
+    --muted:       #97A29E;
+    --faint:       #6F7C78;
+    --rule:        #2B3533;
+    --rule-soft:   #222B29;
+    --accent:      #4FB3A6;
+    --accent-ink:  #6FC7BB;
+    --accent-soft: #16302C;
+    --on-accent:   #0F1413;
+    --pos:         #74C08F;
+    --pos-soft:    #17291D;
+    --warn:        #D9A44A;
+    --warn-soft:   #2C2415;
+    --neg:         #DE8878;
+    --neg-soft:    #2E1E1B;
+    --shadow:      0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.55;
+    margin: 0;
+    padding: clamp(1.25rem, 4vw, 3rem) clamp(1rem, 4vw, 2.5rem) 4rem;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 76rem; margin: 0 auto; display: flex; flex-direction: column; gap: 1.75rem; }
+
+  /* ---------- header ---------- */
+
+  header { display: flex; flex-direction: column; gap: .85rem; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: .68rem;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin: 0;
+  }
+
+  h1 {
+    font-size: clamp(1.75rem, 4.5vw, 2.35rem);
+    font-weight: 600;
+    letter-spacing: -.02em;
+    line-height: 1.1;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  .standfirst {
+    color: var(--muted);
+    max-width: 46rem;
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  /* ---------- variant tabs ---------- */
+
+  .tabs { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+  .tab {
+    font: inherit;
+    font-size: .88rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: .42rem 1rem;
+    cursor: pointer;
+    transition: background .14s ease, color .14s ease, border-color .14s ease;
+  }
+  .tab:hover { border-color: var(--accent); color: var(--ink); }
+  .tab[aria-selected="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--on-accent);
+  }
+
+  button:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* ---------- lanes ---------- */
+
+  .lanes {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  @media (min-width: 62rem) {
+    .lanes { grid-template-columns: 23rem 1fr; }
+  }
+
+  .lane-label {
+    font-family: var(--mono);
+    font-size: .66rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin: 0 0 .6rem;
+  }
+
+  /* ---------- the member screen ---------- */
+
+  .screen {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .screen-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: .8rem 1.1rem;
+    border-bottom: 1px solid var(--rule-soft);
+    font-family: var(--mono);
+    font-size: .7rem;
+    color: var(--faint);
+  }
+
+  .block { padding: 1.05rem 1.1rem; border-bottom: 1px solid var(--rule-soft); }
+  .block:last-child { border-bottom: 0; }
+  .block h3 {
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin: 0 0 .7rem;
+  }
+
+  .line { display: flex; justify-content: space-between; gap: 1rem; padding: .3rem 0; }
+  .line .nm { min-width: 0; }
+  .line .amt { font-family: var(--mono); font-size: .85rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .line.oos .nm { color: var(--muted); }
+  .line.oos .amt { text-decoration: line-through; color: var(--faint); }
+  .oos-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: .6rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--neg);
+    background: var(--neg-soft);
+    border-radius: 3px;
+    padding: .1rem .35rem;
+    margin-left: .4rem;
+    vertical-align: 1px;
+  }
+  .line.total { border-top: 1px solid var(--rule-soft); margin-top: .45rem; padding-top: .6rem; font-weight: 600; }
+
+  .refund {
+    background: var(--pos-soft);
+    border-left: 3px solid var(--pos);
+    padding: .8rem .95rem;
+    border-radius: 0 6px 6px 0;
+  }
+  .refund p { margin: 0; font-weight: 500; }
+  .refund .sub { font-weight: 400; font-size: .87rem; color: var(--muted); margin-top: .25rem; }
+
+  .prompt { margin: 0 0 .35rem; }
+  .estimate {
+    font-family: var(--mono);
+    font-size: .82rem;
+    color: var(--accent-ink);
+    margin: .35rem 0 0;
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .7rem; }
+  .chip {
+    font: inherit;
+    font-size: .82rem;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    padding: .38rem .68rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    transition: border-color .14s ease, background .14s ease;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .chip .dot { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+  .dot.likely { background: var(--pos); }
+  .dot.unlikely { background: var(--warn); }
+  .dot.impossible { background: var(--neg); }
+
+  .warning {
+    margin-top: .8rem;
+    border-radius: 7px;
+    padding: .7rem .8rem;
+    font-size: .88rem;
+    line-height: 1.5;
+  }
+  .warning.unlikely { background: var(--warn-soft); color: var(--warn); }
+  .warning.impossible { background: var(--neg-soft); color: var(--neg); }
+  .warning .acts { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .55rem; }
+  .warning .act {
+    font: inherit;
+    font-size: .78rem;
+    font-weight: 500;
+    background: var(--surface);
+    color: inherit;
+    border: 1px solid currentColor;
+    border-radius: 5px;
+    padding: .25rem .55rem;
+    opacity: .9;
+  }
+
+  .facts { display: grid; grid-template-columns: 1fr auto; gap: .35rem 1rem; margin: 0; }
+  .facts dt { color: var(--muted); font-size: .88rem; }
+  .facts dd {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: .82rem;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .outcome { display: flex; flex-direction: column; gap: .5rem; }
+  .outcome .mode { font-weight: 600; }
+  .outcome .copy { color: var(--muted); font-size: .89rem; margin: 0; }
+
+  .denial { color: var(--muted); margin: 0; }
+  .ghost-btn {
+    font: inherit;
+    font-size: .84rem;
+    font-weight: 500;
+    margin-top: .7rem;
+    background: transparent;
+    color: var(--accent-ink);
+    border: 1px solid var(--accent);
+    border-radius: 7px;
+    padding: .38rem .8rem;
+    cursor: default;
+  }
+
+  /* ---------- the system lane ---------- */
+
+  .panels { display: flex; flex-direction: column; gap: 1rem; }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 1rem 1.1rem;
+  }
+  .panel > h3 {
+    font-size: .8rem;
+    font-weight: 600;
+    margin: 0 0 .2rem;
+  }
+  .panel > .why {
+    font-size: .84rem;
+    color: var(--muted);
+    margin: 0 0 .85rem;
+    text-wrap: pretty;
+  }
+  .panel-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 46rem) {
+    .panel-grid.two { grid-template-columns: 1fr 1fr; }
+  }
+
+  .kv { display: grid; grid-template-columns: 1fr auto; gap: .3rem .9rem; margin: 0; }
+  .kv dt { color: var(--muted); font-size: .85rem; }
+  .kv dd {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: .8rem;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .kv dd.em { color: var(--accent-ink); font-weight: 500; }
+
+  .pill {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: .64rem;
+    font-weight: 500;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    border-radius: 3px;
+    padding: .12rem .4rem;
+  }
+  .pill.served   { color: var(--pos); background: var(--pos-soft); }
+  .pill.skipped  { color: var(--warn); background: var(--warn-soft); }
+  .pill.waiting  { color: var(--faint); background: var(--rule-soft); }
+  .pill.yes      { color: var(--pos); background: var(--pos-soft); }
+  .pill.no       { color: var(--neg); background: var(--neg-soft); }
+
+  .meter { display: flex; height: 7px; border-radius: 4px; overflow: hidden; background: var(--rule-soft); margin: .55rem 0 .3rem; }
+  .meter span { display: block; height: 100%; }
+  .meter .q { background: var(--accent); }
+  .meter .f { background: var(--rule); }
+  .meter-key { display: flex; justify-content: space-between; font-family: var(--mono); font-size: .68rem; color: var(--faint); }
+
+  code {
+    font-family: var(--mono);
+    font-size: .86em;
+    background: var(--rule-soft);
+    border-radius: 3px;
+    padding: .08em .32em;
+  }
+
+  .ladder { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .1rem; }
+  .ladder li {
+    display: grid;
+    grid-template-columns: 1.5rem 1fr;
+    gap: .1rem .6rem;
+    padding: .5rem 0;
+    border-top: 1px solid var(--rule-soft);
+  }
+  .ladder li:first-child { border-top: 0; }
+  .ladder .step {
+    font-family: var(--mono);
+    font-size: .7rem;
+    color: var(--faint);
+    padding-top: .12em;
+  }
+  .ladder .what { font-size: .89rem; }
+  .ladder .reason { grid-column: 2; font-size: .82rem; color: var(--muted); }
+  .ladder li.chosen .step { color: var(--accent-ink); font-weight: 500; }
+  .ladder li.chosen .what { font-weight: 600; color: var(--accent-ink); }
+  .ladder li.skipped .what { color: var(--muted); }
+  .ladder li.unreached { opacity: .45; }
+  .ladder li.unreached .what { font-size: .84rem; }
+  .ladder .mark { font-family: var(--mono); font-size: .78rem; }
+
+  .found {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: .8rem .95rem;
+    border-radius: 0 6px 6px 0;
+  }
+  .found p { margin: 0; font-weight: 500; }
+  .found .sub { font-weight: 400; font-size: .87rem; color: var(--muted); margin-top: .25rem; }
+
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 30rem; font-size: .84rem; }
+  caption {
+    caption-side: top;
+    text-align: left;
+    font-size: .84rem;
+    color: var(--muted);
+    padding-bottom: .6rem;
+    text-wrap: pretty;
+  }
+  th, td { text-align: left; padding: .38rem .7rem .38rem 0; white-space: nowrap; }
+  th:last-child, td:last-child { padding-right: 0; }
+  thead th {
+    font-size: .66rem;
+    font-weight: 600;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--faint);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: .4rem;
+  }
+  tbody tr + tr th, tbody tr + tr td { border-top: 1px solid var(--rule-soft); }
+  td.num, th.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  tr.you { background: var(--accent-soft); }
+  tr.you td { font-weight: 600; }
+  tr.dim td { color: var(--muted); }
+
+  /* ---------- footer ---------- */
+
+  .strip {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 1.1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: .9rem;
+  }
+  .strip h3 { font-size: .8rem; margin: 0; }
+  .strip .why { font-size: .85rem; color: var(--muted); margin: 0; text-wrap: pretty; }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+    gap: .9rem 1.4rem;
+  }
+  .stat { display: flex; flex-direction: column; gap: .1rem; }
+  .stat .v {
+    font-family: var(--mono);
+    font-size: 1.15rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .k { font-size: .76rem; color: var(--muted); line-height: 1.35; }
+  .stat.flag .v { color: var(--warn); }
+
+  footer.note {
+    font-family: var(--mono);
+    font-size: .72rem;
+    line-height: 1.7;
+    color: var(--faint);
+    border-top: 1px solid var(--rule);
+    padding-top: 1.1rem;
+  }
+  footer.note p { margin: 0 0 .5rem; max-width: 54rem; }
+  footer.note p:last-child { margin-bottom: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Hold My Place &middot; member flow</p>
+    <h1>What a member sees when a paid line goes out of stock</h1>
+    <p class="standfirst">
+      Left is the screen. Right is what the system did to produce it — the eligibility read,
+      the queue, the allocation, the routing decision and its cost. Every figure on this page
+      is computed by the domain code, including the copy: nothing is typed in by hand.
+    </p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Out-of-stock item type" id="tabs"></div>
+
+  <div class="lanes">
+    <section aria-label="Member screen">
+      <p class="lane-label">The member's screen</p>
+      <div class="screen" id="screen"></div>
+    </section>
+
+    <section aria-label="System decisions">
+      <p class="lane-label">What the system did</p>
+      <div class="panels" id="panels"></div>
+    </section>
+  </div>
+
+  <div class="strip" id="scale"></div>
+
+  <footer class="note">
+    <p id="prov"></p>
+    <p>
+      An unsolicited outside proposal. Not affiliated with, endorsed by, or prepared on behalf
+      of Costco Wholesale Corporation. Item names, prices and members are synthetic.
+    </p>
+  </footer>
+</div>
+
+<script>
+  const SCENARIO = __SCENARIO_JSON__;
+
+  const VARIANT_LABELS = {
+    nearby: "In stock 14 km away",
+    core: "Nothing in range",
+    one_time: "One-time buy",
+    seasonal: "Season closed",
+  };
+
+  const RUNG_ORDER_LABELS = {
+    other_warehouse: "Pull it from another warehouse",
+    other_channel: "Fill it from the other channel",
+    claim_queue: "Hold their place in the queue",
+    substitute: "Refund, and show alternatives",
+    refund_only: "Refund, and nothing more",
+  };
+
+  const ELIGIBILITY_RULE = {
+    nearby: "Never reached — the item was found before eligibility mattered.",
+    core: "Lifecycle is <code>core</code> and receipts show a cadence, so a claim may be offered.",
+    one_time: "Lifecycle is <code>opportunistic</code>. Not in the claimable allowlist, so no claim is offered at all.",
+    seasonal: "Lifecycle is <code>seasonal</code> but the season end has passed, so nothing can arrive.",
+  };
+
+  const state = { variant: SCENARIO.variants[0].id, choice: 0, fork: "executive" };
+
+  const el = (tag, cls, html) => {
+    const node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (html !== undefined) node.innerHTML = html;
+    return node;
+  };
+
+  const variant = () => SCENARIO.variants.find((v) => v.id === state.variant);
+  const choice = () => {
+    const v = variant();
+    return v.choices.length ? v.choices[Math.min(state.choice, v.choices.length - 1)] : null;
+  };
+
+  /* ---------- tabs ---------- */
+
+  function renderTabs() {
+    const host = document.getElementById("tabs");
+    host.innerHTML = "";
+    SCENARIO.variants.forEach((v) => {
+      const btn = el("button", "tab", VARIANT_LABELS[v.id] || v.id);
+      btn.type = "button";
+      btn.setAttribute("role", "tab");
+      btn.setAttribute("aria-selected", String(v.id === state.variant));
+      btn.addEventListener("click", () => {
+        state.variant = v.id;
+        state.choice = 0;
+        state.fork = "executive";
+        render();
+      });
+      host.appendChild(btn);
+    });
+  }
+
+  /* ---------- member screen ---------- */
+
+  function renderScreen() {
+    const v = variant();
+    const c = choice();
+    const host = document.getElementById("screen");
+    host.innerHTML = "";
+
+    const bar = el("div", "screen-bar");
+    bar.appendChild(el("span", null, "Order &middot; delivery"));
+    bar.appendChild(el("span", null, SCENARIO.today));
+    host.appendChild(bar);
+
+    // Cart
+    const cart = el("div", "block");
+    cart.appendChild(el("h3", null, "Your order"));
+    v.cart.forEach((line) => {
+      const row = el("div", "line" + (line.out_of_stock ? " oos" : ""));
+      row.appendChild(
+        el("span", "nm", line.name + (line.out_of_stock ? '<span class="oos-tag">out of stock</span>' : ""))
+      );
+      row.appendChild(el("span", "amt", line.price));
+      cart.appendChild(row);
+    });
+    const total = el("div", "line total");
+    total.appendChild(el("span", "nm", "Charged"));
+    total.appendChild(el("span", "amt", v.cart_total));
+    cart.appendChild(total);
+    host.appendChild(cart);
+
+    // Found it: the line stands, so there is nothing to refund.
+    const L = v.ladder;
+    const banner = el("div", "block");
+    if (L.immediate) {
+      const found = el("div", "found");
+      found.appendChild(el("p", null, L.headline));
+      found.appendChild(el("p", "sub", L.member_copy));
+      banner.appendChild(found);
+      host.appendChild(banner);
+      const kept = el("div", "block");
+      kept.appendChild(el("h3", null, "Nothing changes"));
+      const f = el("dl", "facts");
+      [
+        ["Charged", v.cart_total],
+        ["Refunded", "—"],
+        ["Your order", "unchanged"],
+      ].forEach(([k, val]) => {
+        f.appendChild(el("dt", null, k));
+        f.appendChild(el("dd", null, val));
+      });
+      kept.appendChild(f);
+      host.appendChild(kept);
+      return;
+    }
+
+    const refund = el("div", "refund");
+    refund.appendChild(el("p", null, v.offer.headline));
+    refund.appendChild(el("p", "sub", "Back on your card in 3&ndash;5 business days. Nothing else needed."));
+    banner.appendChild(refund);
+    host.appendChild(banner);
+
+    if (L.rung !== "claim_queue") {
+      const denied = el("div", "block");
+      denied.appendChild(el("h3", null, "This item"));
+      denied.appendChild(el("p", "denial", L.member_copy));
+      if (v.id === "seasonal") {
+        const btn = el("button", "ghost-btn", "Notify me next season");
+        btn.type = "button";
+        btn.setAttribute("aria-disabled", "true");
+        denied.appendChild(btn);
+      } else {
+        const btn = el("button", "ghost-btn", "Show similar items");
+        btn.type = "button";
+        btn.setAttribute("aria-disabled", "true");
+        denied.appendChild(btn);
+      }
+      host.appendChild(denied);
+      return;
+    }
+
+    // Claim offer + deadline chips
+    const ask = el("div", "block");
+    ask.appendChild(el("h3", null, "Optional"));
+    ask.appendChild(el("p", "prompt", v.offer.secondary));
+    if (v.offer.estimate) ask.appendChild(el("p", "estimate", v.offer.estimate.copy));
+    ask.appendChild(el("p", "prompt", "<strong>" + v.offer.prompt + "</strong>"));
+
+    const chips = el("div", "chips");
+    v.choices.forEach((ch, index) => {
+      const btn = el("button", "chip");
+      btn.type = "button";
+      btn.setAttribute("aria-pressed", String(index === state.choice));
+      btn.innerHTML =
+        '<span class="dot ' + ch.feasibility + '"></span>' + ch.label +
+        ' <span style="color:var(--faint);font-family:var(--mono);font-size:.78em">' + ch.cancel_by + "</span>";
+      btn.addEventListener("click", () => {
+        state.choice = index;
+        render();
+      });
+      chips.appendChild(btn);
+    });
+    ask.appendChild(chips);
+
+    if (c && c.warning) {
+      const warn = el("div", "warning " + c.feasibility);
+      const parts = c.warning.split("·").map((s) => s.trim());
+      warn.appendChild(el("p", null, parts[0].replace(/Hold my place anyway\s*$/, "").trim()));
+      const acts = el("div", "acts");
+      ["Hold my place anyway", "Move the date out", "Just refund me"].forEach((label) => {
+        const b = el("button", "act", label);
+        b.type = "button";
+        b.setAttribute("aria-disabled", "true");
+        acts.appendChild(b);
+      });
+      warn.appendChild(acts);
+      ask.appendChild(warn);
+    }
+    host.appendChild(ask);
+
+    if (!c) return;
+
+    // Confirmation
+    const confirmed = el("div", "block");
+    confirmed.appendChild(el("h3", null, "Your place is held"));
+    const facts = el("dl", "facts");
+    const rows = [
+      ["Refunded now", v.offer.refund],
+      ["Cancel-by date", c.cancel_by + (c.capped ? " (season end)" : "")],
+      ["Price held until", c.price_lock_until],
+      ["We'll check in", c.nudge_on],
+      ["In line", c.position + " of " + c.queue_length],
+    ];
+    rows.forEach(([k, val]) => {
+      facts.appendChild(el("dt", null, k));
+      facts.appendChild(el("dd", null, val));
+    });
+    confirmed.appendChild(facts);
+    host.appendChild(confirmed);
+
+    // Outcome
+    const out = el("div", "block");
+    out.appendChild(el("h3", null, c.served ? "Back in stock" : "How this ends"));
+    if (c.outcome) {
+      const body = el("div", "outcome");
+      body.appendChild(el("p", "mode", c.outcome.mode_label + " &middot; " + c.outcome.arrival));
+      body.appendChild(el("p", "copy", c.outcome.member_copy));
+      const f2 = el("dl", "facts");
+      [
+        ["You pay", c.outcome.price_paid + (c.outcome.price_locked ? " (held price)" : "")],
+        ["Delivery", c.outcome.charged ? c.outcome.fee : "Free"],
+      ].forEach(([k, val]) => {
+        f2.appendChild(el("dt", null, k));
+        f2.appendChild(el("dd", null, val));
+      });
+      body.appendChild(f2);
+      out.appendChild(body);
+    } else {
+      out.appendChild(
+        el(
+          "p",
+          "denial",
+          "This date lapses before the next delivery could arrive, so the claim closes on " +
+            c.cancel_by +
+            " and we let you know. You keep the refund either way."
+        )
+      );
+    }
+    host.appendChild(out);
+  }
+
+  /* ---------- system lane ---------- */
+
+  function panel(title, why) {
+    const p = el("div", "panel");
+    p.appendChild(el("h3", null, title));
+    if (why) p.appendChild(el("p", "why", why));
+    return p;
+  }
+
+  function kvList(pairs) {
+    const dl = el("dl", "kv");
+    pairs.forEach(([k, val, em]) => {
+      dl.appendChild(el("dt", null, k));
+      dl.appendChild(el("dd", em ? "em" : null, val));
+    });
+    return dl;
+  }
+
+  function renderPanels() {
+    const v = variant();
+    const c = choice();
+    const host = document.getElementById("panels");
+    host.innerHTML = "";
+
+    // 0. The ladder walk
+    const L = v.ladder;
+    const walk = panel(
+      "Resolution ladder",
+      "Rungs are ordered by how close each outcome is to what the member asked for. " +
+        "A claim is third: the item now beats the item later, which beats a different item now."
+    );
+    const skipped = {};
+    L.passed_over.forEach((rej) => (skipped[rej.rung] = rej.reason));
+    const list = el("ul", "ladder");
+    let reached = true;
+    L.order.forEach((rung, index) => {
+      const isChosen = rung === L.rung;
+      const isSkipped = rung in skipped;
+      const cls = isChosen ? "chosen" : isSkipped ? "skipped" : reached ? "unreached" : "unreached";
+      const li = el("li", cls);
+      const mark = isChosen ? "→" : isSkipped ? "×" : "·";
+      li.appendChild(el("span", "step", mark + " " + (index + 1)));
+      li.appendChild(el("span", "what", RUNG_ORDER_LABELS[rung]));
+      if (isSkipped) li.appendChild(el("span", "reason", skipped[rung]));
+      if (isChosen) {
+        reached = false;
+        if (L.source) {
+          li.appendChild(
+            el(
+              "span",
+              "reason",
+              L.source.warehouse + " — " + L.source.distance_km + " km, " +
+                L.source.on_hand + " on hand"
+            )
+          );
+        }
+      }
+      list.appendChild(li);
+    });
+    walk.appendChild(list);
+    walk.appendChild(
+      kvList([
+        ["Transfer radius", L.policy.max_transfer_km + " km"],
+        ["Units a location must spare", String(L.policy.min_on_hand_to_pull)],
+        ["Money refunded", L.refunded ? v.offer.refund : "none — the line stands"],
+      ])
+    );
+    host.appendChild(walk);
+
+    if (L.immediate) {
+      host.appendChild(
+        panel(
+          "Why no claim was considered",
+          "The item was found, so eligibility, the return estimate and the queue " +
+            "were never consulted. Under a design that reached for the queue first, " +
+            "this member would have been offered a wait instead."
+        )
+      );
+      return;
+    }
+
+    // 1. Eligibility
+    const elig = panel("Eligibility read", ELIGIBILITY_RULE[v.id]);
+    const eligRows = [
+      ["SKU", v.sku.id],
+      ["Lifecycle", v.sku.lifecycle],
+      ["Replenishment cadence", v.sku.cadence ? v.sku.cadence + " days" : "none recorded"],
+    ];
+    if (v.sku.season_end) eligRows.push(["Season ends", v.sku.season_end]);
+    eligRows.push([
+      "Claim offered",
+      v.offer.claimable
+        ? '<span class="pill yes">yes</span>'
+        : '<span class="pill no">no &middot; ' + v.offer.denial.replace(/_/g, " ") + "</span>",
+      false,
+    ]);
+    elig.appendChild(kvList(eligRows));
+    host.appendChild(elig);
+
+    if (L.rung !== "claim_queue") {
+      const fc = panel(
+        "Failing closed",
+        "Default is not eligible. A claim appears only on a confident positive signal, so a gap in the data produces a clean refund rather than a promise nobody can keep."
+      );
+      host.appendChild(fc);
+      return;
+    }
+
+    // 2. Estimate
+    const est = v.offer.estimate;
+    const estimate = panel(
+      "Return estimate",
+      "The one place a model earns its keep. Confidence below 50% withholds the claim option entirely."
+    );
+    estimate.appendChild(
+      kvList([
+        ["Expected", est.eta],
+        ["Late edge of band", est.worst_case],
+        ["Band width", est.band_days + " days"],
+        ["Confidence", (est.confidence * 100).toFixed(0) + "%", true],
+        ["Overdue", est.overdue ? "yes" : "no"],
+      ])
+    );
+    host.appendChild(estimate);
+
+    if (!c) return;
+
+    // 3. Deadline verdict
+    const verdict = panel(
+      "Deadline check",
+      "Graded when the date is set, not weeks later. Under-promising here is free; queuing someone into a disappointment is not."
+    );
+    verdict.appendChild(
+      kvList([
+        ["Member's date", c.cancel_by],
+        ["Days out", String(c.days)],
+        [
+          "Verdict",
+          '<span class="pill ' +
+            (c.feasibility === "likely" ? "served" : c.feasibility === "unlikely" ? "skipped" : "no") +
+            '">' + c.feasibility_label + "</span>",
+        ],
+      ])
+    );
+    host.appendChild(verdict);
+
+    // 4. Receipt split
+    const split = panel(
+      "Next receipt",
+      "Units are reserved for the queue before the rest reaches the floor — never more than there are claims waiting."
+    );
+    const qShare = (c.receipt.to_queue / c.receipt.units) * 100;
+    const meter = el("div", "meter");
+    meter.appendChild(el("span", "q", "")).style.width = qShare + "%";
+    meter.appendChild(el("span", "f", "")).style.width = 100 - qShare + "%";
+    split.appendChild(meter);
+    const key = el("div", "meter-key");
+    key.appendChild(el("span", null, c.receipt.to_queue + " to claims"));
+    key.appendChild(el("span", null, c.receipt.to_floor + " to the floor"));
+    split.appendChild(key);
+    split.appendChild(
+      kvList([
+        ["Units arriving", String(c.receipt.units)],
+        ["Reservation policy", c.receipt.share + " of receipt"],
+      ])
+    );
+    host.appendChild(split);
+
+    // 5. The queue
+    const q = panel("Allocation", "");
+    const table = el("table");
+    table.innerHTML =
+      "<caption>Order time decides who gets a unit. The deadline only decides who is still in line — " +
+      "the three skipped rows waited longest and are passed over without costing anyone behind them a unit." +
+      "</caption>" +
+      "<thead><tr><th class='num'>#</th><th>Claim</th><th>Ordered</th><th>Cancel by</th>" +
+      "<th class='num'>Slack</th><th>Result</th></tr></thead>";
+    const tbody = el("tbody");
+    v.queue.forEach((row) => {
+      const tr = el("tr", (row.is_you ? "you " : "") + (row.status === "skipped" ? "dim" : ""));
+      tr.innerHTML =
+        "<td class='num'>" + row.position + "</td>" +
+        "<td>" + (row.is_you ? "you" : row.claim_id) + "</td>" +
+        "<td class='num'>" + row.ordered_at + "</td>" +
+        "<td class='num'>" + row.cancel_by + "</td>" +
+        "<td class='num'>" + row.slack + "d</td>" +
+        "<td><span class='pill " + row.status + "'>" + row.status + "</span></td>";
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    const scroll = el("div", "scroll");
+    scroll.appendChild(table);
+    q.appendChild(scroll);
+    host.appendChild(q);
+
+    // 6. Routing fork
+    if (v.base_member_choice && v.pickup_choice) {
+      const tight = v.choices.find((x) => x.feasibility === "unlikely") || c;
+      const fork = panel(
+        "Routing the same tight date three ways",
+        "Cheapest mode that still meets the member's date. Slack is preferred over tier, so anyone who left room gets the cheap batched route regardless of what they pay in membership."
+      );
+      const rows = [
+        ["Collecting in person", v.pickup_choice],
+        ["Base member", v.base_member_choice],
+        ["Executive member", tight],
+      ];
+      const t2 = el("table");
+      t2.innerHTML =
+        "<thead><tr><th>Member</th><th>Mode</th><th>Arrives</th>" +
+        "<th class='num'>They pay</th><th class='num'>Costs Costco</th></tr></thead>";
+      const tb2 = el("tbody");
+      rows.forEach(([label, ch]) => {
+        const o = ch.outcome;
+        const tr = el("tr");
+        tr.innerHTML =
+          "<td>" + label + "</td>" +
+          "<td>" + (o ? o.mode_label : "&mdash;") + "</td>" +
+          "<td class='num'>" + (o ? o.arrival : "&mdash;") + "</td>" +
+          "<td class='num'>" + (o ? (o.charged ? o.fee : "free") : "&mdash;") + "</td>" +
+          "<td class='num'>" + (o ? o.cost_to_costco : "&mdash;") + "</td>";
+        tb2.appendChild(tr);
+      });
+      t2.appendChild(tb2);
+      const s2 = el("div", "scroll");
+      s2.appendChild(t2);
+      fork.appendChild(s2);
+      fork.appendChild(
+        kvList([
+          ["Dense route, per stop", SCENARIO.policy.dense_stop],
+          ["Detour on a passing route", SCENARIO.policy.adjacent_stop],
+          ["Cluster size that beats a detour", SCENARIO.policy.break_even_stops + " stops"],
+        ])
+      );
+      host.appendChild(fork);
+    }
+
+    // 7. The subsidy, isolated
+    const e = SCENARIO.economics;
+    const money = panel(
+      "What the free stop costs",
+      "The one line item that needs justifying. It does not clear on merchandise margin, and only clears once membership renewal is counted — which is why this belongs to whoever owns renewal, not to fulfillment."
+    );
+    money.appendChild(
+      kvList([
+        ["Top-up basket", e.basket],
+        ["Genuinely new demand", e.incremental],
+        ["Gross margin on it", e.margin],
+        ["Cost of the stop", "-" + e.stop_cost],
+        ["Merchandise only", e.merchandise_only, true],
+        ["With renewal at " + e.assumed_lift + "pp", e.with_renewal],
+        ["Renewal lift to break even", e.breakeven_lift + "pp"],
+      ])
+    );
+    host.appendChild(money);
+  }
+
+  /* ---------- at scale ---------- */
+
+  function renderScale() {
+    const s = SCENARIO.at_scale;
+    const host = document.getElementById("scale");
+    host.innerHTML = "";
+    host.appendChild(el("h3", null, "The same rules over " + s.days + " simulated days"));
+    host.appendChild(
+      el(
+        "p",
+        "why",
+        "One metro, one warehouse. Roughly a third of out-of-stock lines are resolved by finding the " +
+          "item rather than queuing for it. The addressable share is a ceiling, not a failure: a one-time " +
+          "buy is refunded with no claim offered, so there is no promise to break."
+      )
+    );
+    const stats = el("div", "stats");
+    const items = [
+      [s.oos_events.toLocaleString(), "out-of-stock lines after payment"],
+      [s.sourced, "found nearby — no refund, no wait"],
+      [s.got_the_item, "members who got the item they ordered"],
+      [s.addressable, "addressable — SKU restocks at all", true],
+      [s.coverage, "covered — a claim was offered"],
+      [s.promises_kept, "promises kept — filed then filled"],
+      [s.claims_filled + " / " + s.claims_created, "claims filled"],
+      [s.median_days + "d", "median, filed to arrival"],
+      [s.cost_per_fulfillment, "last-mile cost per claim"],
+      [
+        s.units_to_queue.toLocaleString() + " / " + s.units_to_floor.toLocaleString(),
+        "units to claims vs the floor",
+      ],
+    ];
+    items.forEach(([value, label, flag]) => {
+      const stat = el("div", "stat" + (flag ? " flag" : ""));
+      stat.appendChild(el("span", "v", value));
+      stat.appendChild(el("span", "k", label));
+      stats.appendChild(stat);
+    });
+    host.appendChild(stats);
+  }
+
+  function renderProv() {
+    document.getElementById("prov").textContent =
+      "Generated from holdmyplace/domain by holdmyplace.demo.build — screens, copy, verdicts, " +
+      "positions, modes and costs are all computed, none are hand-written. Economic inputs are " +
+      "estimates and public figures, not measurements; the two that decide the outcome (renewal " +
+      "lift, basket incrementality) are unknown outside Costco.";
+  }
+
+  function render() {
+    renderTabs();
+    renderScreen();
+    renderPanels();
+  }
+
+  render();
+  renderScale();
+  renderProv();
+</script>
