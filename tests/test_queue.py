@@ -113,7 +113,7 @@ def test_tightening_a_deadline_never_gains_a_unit(arrival_offset, loose, tight):
 
     A member sits behind two earlier claims. Whatever arrival date a receipt
     implies, shortening their own cancel-by date can never turn a miss into a
-    hit — so overstating urgency is strictly self-harming, and needs no
+    hit, so overstating urgency is strictly self-harming, and needs no
     verification, no policing, and no abuse team.
     """
     arrival = day(arrival_offset)
@@ -129,7 +129,7 @@ def test_tightening_a_deadline_never_gains_a_unit(arrival_offset, loose, tight):
 
     if outcome(tight):
         assert outcome(loose), (
-            "a tighter deadline produced a fill that a looser one did not — "
+            "a tighter deadline produced a fill that a looser one did not: "
             "the deadline is acting as a priority, not a filter"
         )
 

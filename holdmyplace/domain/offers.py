@@ -5,14 +5,15 @@ the sourcing ladder, and the member's chosen deadline meet here and produce one
 resolution for the line.
 
 A claim is the third rung, not the first. `resolve_line` asks sourcing whether
-the item can be found now — another warehouse, the other channel — before it
-asks eligibility whether it will come back. Offering a wait to someone whose
-item is on a shelf twenty miles away is the failure this ordering prevents.
+the item can be found now, at another warehouse or in the other channel,
+before it asks eligibility whether it will come back. Offering a wait to
+someone whose item is on a shelf twenty miles away is the failure this
+ordering prevents.
 
 Two behaviours matter more than the plumbing.
 
 The refund is unconditional and comes first. It is not a branch of this logic
-and not something the member trades away — it is issued regardless, and the
+and not something the member trades away. It is issued regardless, and the
 claim is a separate, optional, clearly secondary step. Anything that reads as
 "wait in line instead of getting your money back" is the failure mode this
 design most needs to avoid.
@@ -63,7 +64,7 @@ class Offer:
     @property
     def headline(self) -> str:
         """The first thing the member reads. The refund, always."""
-        return f"Out of stock — {fmt(self.refund_amount)} refunded to your card."
+        return f"Out of stock. {fmt(self.refund_amount)} refunded to your card."
 
     @property
     def secondary(self) -> str:
@@ -137,8 +138,8 @@ def build_offer(
     )
 
     # A claim with no deadline the member could actually choose is not an offer.
-    # This happens when every preset closes before the item could arrive — a
-    # seasonal item whose window shuts first, most often. Catching it here keeps
+    # This happens when every preset closes before the item could arrive, most
+    # often a seasonal item whose window shuts first. Catching it here keeps
     # "claimable" meaning "there is something to accept".
     if not [p for p in offer.presets(as_of) if p is not DeadlinePreset.EXACT_DATE]:
         return Offer(sku.sku_id, refund, False, denial=Denial.NO_RESTOCK_SIGNAL)
@@ -170,7 +171,7 @@ def deadline_warning(offer: Offer, cancel_by: date, verdict: Feasibility) -> str
     tail = "Hold my place anyway · Move the date out · Just refund me"
     if verdict is Feasibility.IMPOSSIBLE:
         return (
-            f"This one's {offer.estimate.member_copy()} — after {cancel_by:%b %-d}. "
+            f"This one's {offer.estimate.member_copy()}, which is after {cancel_by:%b %-d}. "
             f"We won't make your date. {tail}"
         )
     return (
@@ -202,7 +203,7 @@ class LineResolution:
     """What happens to one out-of-stock line, start to finish.
 
     Composes the two independent questions. Sourcing asks whether the item can
-    be found now — at another warehouse, or in the other channel. Eligibility
+    be found now, at another warehouse or in the other channel. Eligibility
     asks whether it will come back here. A claim is only reached when the answer
     to the first is no and to the second is yes, which is the ordering the
     member would choose for themselves: the actual item now beats the actual
@@ -229,7 +230,7 @@ class LineResolution:
         """Whether money goes back.
 
         Sourcing the item keeps the original line intact, so there is nothing
-        to refund — the member gets what they paid for. Every other rung
+        to refund, because the member gets what they paid for. Every other rung
         refunds first and unconditionally.
         """
         return not self.resolution.immediate
@@ -237,7 +238,7 @@ class LineResolution:
     @property
     def headline(self) -> str:
         if self.resolution.immediate:
-            return "Out of stock at your warehouse — but we found it."
+            return "Out of stock at your warehouse, but we found it."
         return self.offer.headline
 
     @property

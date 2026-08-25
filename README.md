@@ -5,14 +5,14 @@
 I'm an international student, so almost all of my shopping happens in bulk.
 It's cheaper per unit, it means fewer trips, and when you don't have a car every
 trip costs you something. So my roommate and I put together a big Costco
-delivery order — the usual staples, plus four packs of water bottles, which
+delivery order. The usual staples, plus four packs of water bottles, which
 between two of us is about a month of not having to think about water.
 
 We paid. Then the notification came through: the water bottles were unavailable,
 and that part of the order would be refunded.
 
 The refund wasn't the problem. What came after was. We spent the next couple of
-days going store to store trying to find the same thing again — same number of
+days going store to store trying to find the same thing again. Same number of
 bottles, roughly the same price per unit. Nothing lined up. Every place had a
 slightly different pack size at a worse rate. In the end we gave up and bought a
 pack that cost more and had fewer bottles in it, which is precisely the opposite
@@ -24,7 +24,7 @@ system there's a number for how many packs are sitting in every other warehouse
 in the region. We were running a search manually, badly, with no information,
 that they could have done instantly.
 
-So — what if the refund wasn't where it ended? What if the system checked the
+So, what if the refund wasn't where it ended? What if the system checked the
 other warehouses before giving up on me? And if the item genuinely wasn't
 anywhere nearby, what if I could just keep my place in line for it instead of
 starting from scratch as a customer? At that moment the retailer is holding a
@@ -34,10 +34,17 @@ address, and a refund throws it in the bin.
 That's the idea. The rest of this is me finding out whether it survives contact
 with the numbers.
 
+Worth being clear about what this is. It started with a real problem I ran into
+as a customer, not a hypothetical and not an exercise anybody set for me. Every
+large grocer handles stockouts this way, and every one of them absorbs the same
+cost, so the gap is real even if my answer to it turns out not to be. I had an
+idea for how it might work better, and rather than leave it as an opinion I
+implemented it to find out.
+
 What's here is a simulation and a unit-economics model, not a product. I mostly
 wrote it to work out where my own idea was wrong, and it was wrong in five
-places. They're all below, including the one that would have killed the whole
-thing if I'd trusted my first metric.
+places. They're all below, including the one that would have killed the whole thing if
+I'd trusted my first metric.
 
 ```bash
 python -m holdmyplace.sim.run --days 90                 # one run
@@ -56,7 +63,7 @@ My first instinct was "put people in a queue." That instinct was too eager.
 
 Inventory in a warehouse club is per-location, and the online and in-store
 assortments aren't the same pool of stuff. So "out of stock" at the warehouse
-that was supposed to pick your order very often isn't out of stock at all — it's
+that was supposed to pick your order very often isn't out of stock at all. It's
 sitting on a shelf twenty minutes away, or in the other channel's inventory.
 Offering somebody a two-week wait in that situation is just a bad answer.
 
@@ -91,7 +98,7 @@ you're still in line.** You pick your own cancel-by date, and that date is used
 as a filter, never as a sort key.
 
 This part I'm quite happy with. Any "how urgent is this?" field that a customer
-fills in themselves will be maxed out by everybody within about a week — that's
+fills in themselves will be maxed out by everybody within about a week. That's
 just how self-reported priority works. But because the deadline filters instead
 of sorting, setting an aggressive date strictly *reduces* the number of restocks
 that can reach you. Lying makes your outcome worse. So people report honestly
@@ -107,12 +114,12 @@ status. You just look it up:
 
 | Lifecycle | Claim? | What the customer sees |
 |---|---|---|
-| Core / regularly stocked | ✅ | Claim with an estimated return window |
-| Temporarily unavailable | ✅ | Claim, wider estimate band |
-| Seasonal, window open | ✅ | Claim, capped at the season end |
-| Seasonal, window closed | ❌ | "We'll tell you next season" |
-| Opportunistic / one-time buy | ❌ | Refund + substitutes |
-| Discontinued | ❌ | Refund + substitutes |
+| Core / regularly stocked | Yes | Claim with an estimated return window |
+| Temporarily unavailable | Yes | Claim, wider estimate band |
+| Seasonal, window open | Yes | Claim, capped at the season end |
+| Seasonal, window closed | No | "We'll tell you next season" |
+| Opportunistic / one-time buy | No | Refund + substitutes |
+| Discontinued | No | Refund + substitutes |
 
 Anything not on that allowlist is ineligible by default, and I made that
 deliberate. If the lifecycle is unrecognised, or there's no replenishment
@@ -125,35 +132,52 @@ lost trust.
 
 ## What the simulation told me
 
-Five things. Four of them contradicted what I'd written down first.
+Five things. Four of them contradicted what I'd written down first, and the
+first one caught me out twice.
 
-### 1. My first metric was measuring the wrong thing
+### 1. I got the headline metric wrong twice
 
-I originally gated the whole idea on this: *of stockout events, what share are
-on items that restock within 30 days?* Pass above 50%.
+First attempt: I gated the whole idea on *"of stockout events, what share are on
+items that restock within 30 days?"*, pass above 50%. It comes out at **33-49%**,
+so by my own rule I should have binned the project.
 
-It comes out at **33–49%**. By my own rule I should have binned the project.
+The metric is just wrong, though. It counts events the design never promises
+anything about. A one-time buy gets a clean refund and no claim is offered, so
+there's no promise there to break, but the metric scores it as a failure anyway.
+It punishes the eligibility check for working correctly.
 
-Except the metric is wrong. It counts events the design never promises anything
-about. A one-time buy gets a clean refund and no claim is offered, so there is
-no promise there to break — but the metric scores that as a failure. It
-punishes the eligibility check for working correctly.
+So I moved the gate to **promises kept**: of the claims people actually filed,
+how many got filled before their own deadline. Better question. Then I measured
+that wrong too, by dividing by every claim ever created, including ones still
+sitting in the queue when the simulation stopped. A claim that hasn't been
+decided yet isn't a broken promise. Counting it as one just makes a short run
+look worse than a long one because of where the window happened to close:
 
-The number that actually matters is **promises kept**: of the claims people
-actually filed, how many got filled before their own deadline. That's **78–86%
-across eight seeds**, and it passes.
+| Run length | Filled / settled | What I was reporting |
+|---|---|---|
+| 45 days | 89.7% | 47.9% (FAIL) |
+| 60 days | 100.0% | 77.5% |
+| 90 days | 98.9% | 79.1% |
+| 240 days | 94.8% | 86.4% |
+
+Measured over claims that actually reached an outcome, it's **95.6-98.9% across
+eight seeds**, and it passes at every horizon from 45 days to 240. So here are
+the three numbers I'd been collapsing into one:
 
 | Metric | What it means | Typical |
 |---|---|---|
-| Addressable | Share on items that restock at all | 33–49% |
+| Addressable | Share on items that restock at all | 33-49% |
 | Coverage | Share where a claim was offered | ~29% |
-| **Promises kept** | **Of claims filed, share filled in time** | **78–86%** |
+| **Promises kept** | **Of settled claims, share filled in time** | **96-99%** |
 
-Three different numbers, and I'd collapsed the first into the third.
+I should be honest about what that high number really means. The queue keeps its
+promises easily *because* the eligibility screen refuses so much: only about 29%
+of stockout lines are ever offered a claim at all. Promise-keeping isn't the
+binding constraint anymore, coverage is. That's where I'd push next.
 
 ### 2. The ladder does more work than the queue
 
-Sourcing the item outright resolves **27–36%** of stockout lines. No refund, no
+Sourcing the item outright resolves **27-36%** of stockout lines. No refund, no
 waiting, original order left alone. Here's the same run with sourcing switched
 off, so everything routes straight to a queue:
 
@@ -175,12 +199,12 @@ back for a queue strips the sales floor. Turns out it doesn't:
 | Queue share of each receipt | Claims filled | Promises kept |
 |---|---|---|
 | 0% | 0 | 0% |
-| 5% | 60 | 52% |
-| **15%** | **87** | **76%** |
-| 25% | 91 | 79% |
-| 90% | 100 | 87% |
+| 5% | 60 | 85% |
+| **15%** | **87** | **97%** |
+| 25% | 91 | 99% |
+| 90% | 100 | 100% |
 
-Returns flatten out hard after 15–25%. And in absolute terms the queue ate **91
+Returns flatten out hard after 15-25%. And in absolute terms the queue ate **91
 units while 40,289 went to the floor**, which is under a quarter of one percent.
 The 0% row matters too, in the other direction: give the queue no allocation and
 it never fills, so how much you reserve is the one thing here that's genuinely
@@ -196,13 +220,13 @@ Genuinely new demand (30%)         $25.50
 Gross margin at 11%                 $2.81
 Cost of an adjacent stop           -$4.00
                                    ------
-Merchandise only                   -$1.19   ← doesn't clear
+Merchandise only                   -$1.19   <-- does not clear
 With renewal value at 0.5pp         $2.71
 ```
 
 On merchandise margin alone it loses money, and no amount of rearranging fixed
-that. It only clears once you count membership renewal — which means this isn't
-really a fulfillment feature at all, it's a retention play. Any team measuring
+that. It only clears once you count membership renewal, which means this isn't
+really a fulfillment feature at all. It's a retention play. Any team measuring
 cost-per-stop will reject it, and they'd be right to. It needs to be pitched to
 whoever owns renewal instead.
 
@@ -227,8 +251,8 @@ freight decision denominated in dollars, and as far as I can tell nobody has it,
 because everyone destroys the intent at the moment of refund.
 
 I was pretty pleased with this until I checked what the model actually produces.
-At the default scale — one metro, 400 items, about 9 stockout lines a day — the
-biggest cluster is 3 open claims with nothing expiring soon. That's not a pallet
+At the default scale of one metro, 400 items and about 9 stockout lines a day,
+the biggest cluster is 3 open claims with nothing expiring soon. That's not a pallet
 decision, that's noise. Sweeping volume:
 
 | Lines/day | Items | Claims filed | Largest cluster |
@@ -249,7 +273,7 @@ allocation, I think it holds.
 ## The demo
 
 `demo/index.html` walks through it: the customer's screen on the left, what the
-system did on the right — the ladder walk with its rejection reasons, the
+system did on the right: the ladder walk with its rejection reasons, the
 eligibility read, the return estimate, how the receipt got split, the queue with
 its served / skipped / waiting rows, and the routing decision.
 
@@ -268,7 +292,7 @@ disagrees with the system it's illustrating is worse than no mockup.
 ```
 holdmyplace/
   domain/
-    catalog.py    lifecycle + channel → eligibility, fails closed
+    catalog.py    lifecycle + channel -> eligibility, fails closed
     claims.py     deadlines, price lock, state transitions
     restock.py    return estimation, splitting a receipt queue vs floor
     sourcing.py   the resolution ladder and its audit trail
@@ -287,8 +311,8 @@ holdmyplace/
 ```
 
 The package is `holdmyplace`, lowercase, because that's what `import` needs. The
-repo is `HoldMyPlace`. Don't rename the folder to match — it breaks every
-import.
+repo is `HoldMyPlace`. Don't rename the folder to match, because it breaks
+every import.
 
 ---
 
@@ -296,7 +320,7 @@ import.
 
 `economics.py` tags every input as `PUBLIC`, `POLICY`, `ESTIMATED` or `UNKNOWN`,
 and the report prints those tags next to the values. Two are flagged
-load-bearing — `renewal_lift_pp` and `topup_incrementality` — because their
+load-bearing, `renewal_lift_pp` and `topup_incrementality`, because their
 plausible ranges are wide enough to flip the conclusion's sign on their own. A
 test fails if somebody adds an input without documenting where it came from.
 
@@ -312,7 +336,7 @@ Two gaps I knowingly left open:
 
 - **Supplier capacity isn't modelled.** During a demand spike the estimator is
   reading backward-looking cadence, which means it'll over-promise on exactly
-  the highest-volume items — adverse selection, basically. The fix is to
+  the highest-volume items. Adverse selection, basically. The fix is to
   discount confidence when recent sell-through diverges from history so it fails
   closed on spikes. Haven't done it yet.
 - **How customers react to a warning is a parameter, not a finding.** The
@@ -320,5 +344,5 @@ Two gaps I knowingly left open:
 
 ---
 
-*Independent design exercise. Not affiliated with or endorsed by any retailer.
-Item names, prices and members are all synthetic.*
+*Built independently, from a problem I ran into as a customer. Not affiliated
+with or endorsed by any retailer. Item names, prices and members are synthetic.*

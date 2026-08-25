@@ -2,7 +2,7 @@
 
 The single most important modelling choice in this file is `OOS_PROPENSITY`. The
 strongest objection to the whole design is that the items most likely to sell
-out skew toward the ones that never come back — a low-SKU assortment carries a
+out skew toward the ones that never come back. A low-SKU assortment carries a
 meaningful share of one-time opportunistic buys and closeouts, and those are
 exactly the items that empty a shelf and stay empty. Weighting out-of-stock
 incidence against lifecycle is what lets the simulation reproduce that
@@ -25,7 +25,7 @@ from ..domain.money import money
 from ..domain.sourcing import StockPoint
 
 #: Relative likelihood that a given lifecycle is the one that ran out. Not
-#: probabilities — weights, normalized against the assortment mix at runtime.
+#: probabilities but weights, normalized against the assortment mix at runtime.
 #: Opportunistic and discontinued items are over-represented on purpose.
 OOS_PROPENSITY: dict[Lifecycle, float] = {
     Lifecycle.CORE: 1.0,

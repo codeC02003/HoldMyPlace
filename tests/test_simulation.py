@@ -89,7 +89,7 @@ def test_every_out_of_stock_line_was_refunded(results):
 
 
 def test_the_ladder_partitions_every_event(results):
-    """Sourced, denied, or offered a claim — no line escapes all three."""
+    """Sourced, denied, or offered a claim. No line escapes all three."""
     assert (
         results.sourced_elsewhere
         + sum(results.denials.values())

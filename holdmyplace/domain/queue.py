@@ -123,12 +123,12 @@ class ClaimQueue:
         """Decide which claims a receipt of `units` would fill. Pure.
 
         Walks the queue strictly in order-time sequence. A claim the receipt
-        cannot reach in time is skipped *without consuming a unit* — being
-        passed over costs the queue nothing and costs the claim behind it
-        nothing, which is what keeps the filter from behaving like a priority.
+        cannot reach in time is skipped *without consuming a unit*. Being passed
+        over costs the queue nothing and costs the claim behind it nothing,
+        which is what keeps the filter from behaving like a priority.
 
         `arrival` may be a single date, or a function of the claim when the
-        fastest reachable date differs by member — someone collecting at the
+        fastest reachable date differs by member. Someone collecting at the
         warehouse can be served by a receipt that a delivery could not reach in
         time.
         """
@@ -230,7 +230,7 @@ def demand_signal(
     """Aggregate open claims into (SKU, area) clusters, worst first.
 
     `expiring_soon` and `forfeit_value` are the operationally useful half: they
-    convert a queue into a dated freight decision — if the pallet does not land
+    convert a queue into a dated freight decision. If the pallet does not land
     by this date, this much confirmed demand is lost in this area.
     """
     from .money import money, ZERO

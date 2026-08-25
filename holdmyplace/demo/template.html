@@ -489,9 +489,9 @@
     <p class="eyebrow">Hold My Place &middot; member flow</p>
     <h1>What a member sees when a paid line goes out of stock</h1>
     <p class="standfirst">
-      Left is the screen. Right is what the system did to produce it — the eligibility read,
-      the queue, the allocation, the routing decision and its cost. Every figure on this page
-      is computed by the domain code, including the copy: nothing is typed in by hand.
+      Left is the screen. Right is what the system did to produce it: the eligibility
+      read, the queue, the allocation, the routing decision and its cost. Every figure on
+      this page is computed by the domain code, including the copy. Nothing is typed in by hand.
     </p>
   </header>
 
@@ -539,7 +539,7 @@
   };
 
   const ELIGIBILITY_RULE = {
-    nearby: "Never reached — the item was found before eligibility mattered.",
+    nearby: "Never reached: the item was found before eligibility mattered.",
     core: "Lifecycle is <code>core</code> and receipts show a cadence, so a claim may be offered.",
     one_time: "Lifecycle is <code>opportunistic</code>. Not in the claimable allowlist, so no claim is offered at all.",
     seasonal: "Lifecycle is <code>seasonal</code> but the season end has passed, so nothing can arrive.",
@@ -624,7 +624,7 @@
       const f = el("dl", "facts");
       [
         ["Charged", v.cart_total],
-        ["Refunded", "—"],
+        ["Refunded", "-"],
         ["Your order", "unchanged"],
       ].forEach(([k, val]) => {
         f.appendChild(el("dt", null, k));
@@ -637,7 +637,7 @@
 
     const refund = el("div", "refund");
     refund.appendChild(el("p", null, v.offer.headline));
-    refund.appendChild(el("p", "sub", "Back on your card in 3&ndash;5 business days. Nothing else needed."));
+    refund.appendChild(el("p", "sub", "Back on your card in 3-5 business days. Nothing else needed."));
     banner.appendChild(refund);
     host.appendChild(banner);
 
@@ -790,7 +790,7 @@
       const isSkipped = rung in skipped;
       const cls = isChosen ? "chosen" : isSkipped ? "skipped" : reached ? "unreached" : "unreached";
       const li = el("li", cls);
-      const mark = isChosen ? "→" : isSkipped ? "×" : "·";
+      const mark = isChosen ? "&gt;" : isSkipped ? "x" : "&middot;";
       li.appendChild(el("span", "step", mark + " " + (index + 1)));
       li.appendChild(el("span", "what", RUNG_ORDER_LABELS[rung]));
       if (isSkipped) li.appendChild(el("span", "reason", skipped[rung]));
@@ -801,7 +801,7 @@
             el(
               "span",
               "reason",
-              L.source.warehouse + " — " + L.source.distance_km + " km, " +
+              L.source.warehouse + ": " + L.source.distance_km + " km, " +
                 L.source.on_hand + " on hand"
             )
           );
@@ -814,7 +814,7 @@
       kvList([
         ["Transfer radius", L.policy.max_transfer_km + " km"],
         ["Units a location must spare", String(L.policy.min_on_hand_to_pull)],
-        ["Money refunded", L.refunded ? v.offer.refund : "none — the line stands"],
+        ["Money refunded", L.refunded ? v.offer.refund : "none: the line stands"],
       ])
     );
     host.appendChild(walk);
@@ -899,7 +899,7 @@
     // 4. Receipt split
     const split = panel(
       "Next receipt",
-      "Units are reserved for the queue before the rest reaches the floor — never more than there are claims waiting."
+      "Units are reserved for the queue before the rest reaches the floor: never more than there are claims waiting."
     );
     const qShare = (c.receipt.to_queue / c.receipt.units) * 100;
     const meter = el("div", "meter");
@@ -922,7 +922,7 @@
     const q = panel("Allocation", "");
     const table = el("table");
     table.innerHTML =
-      "<caption>Order time decides who gets a unit. The deadline only decides who is still in line — " +
+      "<caption>Order time decides who gets a unit. The deadline only decides who is still in line: " +
       "the three skipped rows waited longest and are passed over without costing anyone behind them a unit." +
       "</caption>" +
       "<thead><tr><th class='num'>#</th><th>Claim</th><th>Ordered</th><th>Cancel by</th>" +
@@ -967,10 +967,10 @@
         const tr = el("tr");
         tr.innerHTML =
           "<td>" + label + "</td>" +
-          "<td>" + (o ? o.mode_label : "&mdash;") + "</td>" +
-          "<td class='num'>" + (o ? o.arrival : "&mdash;") + "</td>" +
-          "<td class='num'>" + (o ? (o.charged ? o.fee : "free") : "&mdash;") + "</td>" +
-          "<td class='num'>" + (o ? o.cost_to_costco : "&mdash;") + "</td>";
+          "<td>" + (o ? o.mode_label : "-") + "</td>" +
+          "<td class='num'>" + (o ? o.arrival : "-") + "</td>" +
+          "<td class='num'>" + (o ? (o.charged ? o.fee : "free") : "-") + "</td>" +
+          "<td class='num'>" + (o ? o.cost_to_costco : "-") + "</td>";
         tb2.appendChild(tr);
       });
       t2.appendChild(tb2);
@@ -991,7 +991,7 @@
     const e = SCENARIO.economics;
     const money = panel(
       "What the free stop costs",
-      "The one line item that needs justifying. It does not clear on merchandise margin, and only clears once membership renewal is counted — which is why this belongs to whoever owns renewal, not to fulfillment."
+      "The one line item that needs justifying. It does not clear on merchandise margin, and only clears once membership renewal is counted: which is why this belongs to whoever owns renewal, not to fulfillment."
     );
     money.appendChild(
       kvList([
@@ -1026,11 +1026,11 @@
     const stats = el("div", "stats");
     const items = [
       [s.oos_events.toLocaleString(), "out-of-stock lines after payment"],
-      [s.sourced, "found nearby — no refund, no wait"],
+      [s.sourced, "found nearby: no refund, no wait"],
       [s.got_the_item, "members who got the item they ordered"],
-      [s.addressable, "addressable — SKU restocks at all", true],
-      [s.coverage, "covered — a claim was offered"],
-      [s.promises_kept, "promises kept — filed then filled"],
+      [s.addressable, "addressable: SKU restocks at all", true],
+      [s.coverage, "covered: a claim was offered"],
+      [s.promises_kept, "promises kept: filed then filled"],
       [s.claims_filled + " / " + s.claims_created, "claims filled"],
       [s.median_days + "d", "median, filed to arrival"],
       [s.cost_per_fulfillment, "last-mile cost per claim"],
@@ -1050,7 +1050,7 @@
 
   function renderProv() {
     document.getElementById("prov").textContent =
-      "Generated from holdmyplace/domain by holdmyplace.demo.build — screens, copy, verdicts, " +
+      "Generated from holdmyplace/domain by holdmyplace.demo.build: screens, copy, verdicts, " +
       "positions, modes and costs are all computed, none are hand-written. Economic inputs are " +
       "estimates and public figures, not measurements; the two that decide the outcome (renewal " +
       "lift, basket incrementality) are unknown outside Costco.";

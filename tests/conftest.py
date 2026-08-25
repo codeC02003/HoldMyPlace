@@ -1,4 +1,4 @@
-"""Shared builders. Everything takes explicit dates — no wall-clock reads."""
+"""Shared builders. Everything takes explicit dates, no wall-clock reads."""
 
 from __future__ import annotations
 

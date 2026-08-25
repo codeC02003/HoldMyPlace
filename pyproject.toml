@@ -1,7 +1,7 @@
 [project]
 name = "holdmyplace"
 version = "0.1.0"
-description = "A claim queue for post-payment out-of-stock lines — simulation and unit economics."
+description = "A claim queue for post-payment out-of-stock lines: simulation and unit economics."
 requires-python = ">=3.11"
 dependencies = []
 

@@ -5,8 +5,8 @@ One simulated day, in order:
   1. Receipts land. Each is split between the claim queue and the sales floor,
      the queue's share is allocated first-in-first-out, and every filled claim
      is routed to a fulfillment mode.
-  2. Batched clusters that are dense enough — or out of time — ship.
-  3. New out-of-stock lines are resolved by walking the sourcing ladder —
+  2. Batched clusters that are dense enough, or out of time, ship.
+  3. New out-of-stock lines are resolved by walking the sourcing ladder:
      another warehouse, the other channel, then a claim, then substitutes, then
      a bare refund. A claim is the third rung, so the queue only sees lines the
      network genuinely cannot fill today.
@@ -47,14 +47,14 @@ from .generate import World, WorldConfig, build_world
 #: Days a SKU has to reappear to count as restockable.
 GATE_ONE_WINDOW = 30
 
-#: Thresholds on the promise-keeping rate — of claims actually filed, the share
+#: Thresholds on the promise-keeping rate: of claims actually filed, the share
 #: filled before the member's own deadline.
 #:
 #: The proposal put gate one on a different number: the share of *all*
 #: out-of-stock events falling on SKUs that restock within 30 days. Running the
 #: model showed that to be the wrong test. It counts events the design never
-#: makes a promise about — a one-time buy is refunded cleanly, with no claim
-#: offered and so nothing to break — and it therefore reads as a failure when
+#: makes a promise about. A one-time buy is refunded cleanly, with no claim
+#: offered and so nothing to break, and it therefore reads as a failure when
 #: eligibility screening is doing exactly its job. The restockable share is
 #: still worth reporting, as the ceiling on how much of the problem a queue can
 #: address at all, but the gate belongs on promises kept.
@@ -117,7 +117,7 @@ class Results:
         """Share resolved by finding the item, with no wait and no refund.
 
         The ladder's payoff. Every point here is a line that would have been a
-        queue entry — or a refund — under a design that reached for the queue
+        queue entry, or a refund, under a design that reached for the queue
         first.
         """
         return _ratio(self.sourced_elsewhere, self.oos_events)
@@ -128,16 +128,35 @@ class Results:
         return _ratio(self.sourced_elsewhere + self.claims_filled, self.oos_events)
 
     @property
+    def settled_claims(self) -> int:
+        """Claims that reached an outcome: filled, or expired unfilled.
+
+        Claims still open at the horizon are undecided, not failures. Counting
+        them against the promise rate makes a short run look worse than a long
+        one for no reason other than where the window happened to close.
+        """
+        return self.claims_filled + self.claims_expired
+
+    @property
     def promise_keeping_rate(self) -> float:
-        """Of claims filed, the share filled in time. The actual gate."""
-        return _ratio(self.claims_filled, self.claims_created)
+        """Of claims that reached an outcome, the share filled in time.
+
+        The actual gate. Measured over settled claims only, which is what makes
+        it comparable across run lengths.
+        """
+        return _ratio(self.claims_filled, self.settled_claims)
+
+    @property
+    def undecided_rate(self) -> float:
+        """Share of claims still waiting when the run ended."""
+        return _ratio(self.claims_open_at_end, self.claims_created)
 
     @property
     def addressable_rate(self) -> float:
         """Share of out-of-stock lines on SKUs that restocked within 30 days.
 
-        The ceiling on how much of the problem any queue could address —
-        context for the coverage figure, not a pass/fail test in itself.
+        The ceiling on how much of the problem any queue could address.
+        Context for the coverage figure, not a pass/fail test in itself.
         """
         return _ratio(self.gate_one_restockable, self.oos_events)
 

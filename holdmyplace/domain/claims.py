@@ -49,7 +49,7 @@ class DeadlinePreset(str, Enum):
     """What the member actually picks.
 
     Presets rather than a bare date picker. A raw calendar produces unusable
-    data — people choose today, or arbitrarily a year out — while a short list
+    data, since people choose today or arbitrarily a year out, while a short list
     of intervals is faster to answer and aggregates cleanly.
     """
 
@@ -81,7 +81,7 @@ def resolve_deadline(
 ) -> date:
     """Turn a member's pick into a concrete cancel-by date.
 
-    `ceiling` is an eligibility-imposed cap — a seasonal item's season end —
+    `ceiling` is an eligibility-imposed cap, such as a seasonal item's season end,
     and always wins over the member's choice, since a claim past it can never
     be filled.
     """
@@ -185,8 +185,8 @@ class Claim:
     def extend(self, new_cancel_by: date, as_of: date) -> None:
         """Push the deadline out at the member's request.
 
-        Extending cannot improve position — `ordered_at` is untouched — so this
-        is safe to allow freely.
+        Extending cannot improve position, because `ordered_at` is untouched, so
+        this is safe to allow freely.
         """
         if not self.is_open:
             raise ValueError(f"{self.claim_id}: cannot extend a {self.status} claim")
@@ -207,7 +207,7 @@ class Claim:
         """What the member pays if the item is fulfilled on `as_of`.
 
         Inside the lock window the original price holds even if the shelf price
-        rose. Outside it, the member pays the current price — and if that is a
+        rose. Outside it, the member pays the current price, and if that is a
         material increase the caller must obtain re-consent first.
         """
         if as_of <= self.lock_expires_on():

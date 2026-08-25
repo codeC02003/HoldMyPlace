@@ -1,4 +1,4 @@
-"""Hold My Place — a claim queue for post-payment out-of-stock lines.
+"""Hold My Place: a claim queue for post-payment out-of-stock lines.
 
 When a paid delivery line goes out of stock, the money is refunded and the
 demand is discarded. This package models keeping the demand: a claim queue

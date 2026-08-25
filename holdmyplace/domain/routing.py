@@ -2,7 +2,7 @@
 
 Order cadence is the constraint that shapes this module. Members buy in bulk and
 reorder every few weeks, so "we'll add it to your next order" can mean a
-three-week wait on an item that restocked in three days — long enough for the
+three-week wait on an item that restocked in three days, long enough for the
 member to buy it elsewhere and forget the claim existed. Fulfillment has to beat
 the reorder cycle or the queue is pointless.
 
@@ -80,7 +80,7 @@ class CostParams:
         """Smallest cluster where a purpose-built route beats a detour stop.
 
         Appending to a route already passing nearby carries no fixed cost, so
-        for small clusters the detour is genuinely cheaper — a dedicated
+        for small clusters the detour is genuinely cheaper, because a dedicated
         vehicle only wins once enough stops amortize putting it on the road.
         Batching below this size costs more than it saves, which makes this the
         floor that `BatchParams.min_cluster` has to clear to be worth doing.
@@ -230,7 +230,7 @@ class _Pending:
 class RouteBatcher:
     """Holds claims by area until routing them is cheap, or until it can't wait.
 
-    The member's declared deadline is what makes the waiting legitimate — and
+    The member's declared deadline is what makes the waiting legitimate, and
     it is also the release valve, so no claim is ever held past the point where
     it can still arrive in time.
     """

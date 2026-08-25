@@ -2,7 +2,7 @@
 
     python -m holdmyplace.demo.build [-o demo/index.html]
 
-The template holds no rules and no numbers — only a `__SCENARIO_JSON__`
+The template holds no rules and no numbers, only a `__SCENARIO_JSON__`
 placeholder. Regenerating after a change to `holdmyplace.domain` updates the
 screens, so the demo cannot quietly disagree with the system it illustrates.
 """

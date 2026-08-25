@@ -4,7 +4,7 @@ Two separate jobs live here.
 
 The estimator answers "when does this come back, and how sure are we" from
 replenishment history. This is the one place in the design where a real model
-earns its keep — everything else is a field read — and the confidence it
+earns its keep, since everything else is a field read, and the confidence it
 returns is what gates whether a claim is offered at all.
 
 The split answers the genuinely contested operational question: of the units
@@ -56,7 +56,7 @@ class ReturnEstimate:
 
     @property
     def worst_case(self) -> date:
-        """The late edge of the band — what a deadline must clear to be safe."""
+        """The late edge of the band, which a deadline must clear to be safe."""
         return self.eta + timedelta(days=self.band_days)
 
     @property
@@ -77,7 +77,7 @@ def estimate_return(
 ) -> ReturnEstimate | None:
     """Estimate when `sku` returns to the warehouse that just ran out.
 
-    Returns None when there is nothing to reason from — no cadence, or a
+    Returns None when there is nothing to reason from: no cadence, or a
     lifecycle with no replenishment character. Callers treat None as "do not
     offer a claim", never as "assume the default".
     """

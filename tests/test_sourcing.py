@@ -2,8 +2,8 @@
 
 The ordering under test: the actual item now beats the actual item later, which
 beats a different item now. A claim is the third rung. These tests exist because
-the ladder is easy to get backwards — reaching for the queue first is the
-cheapest thing to build and the worst thing for the member.
+the ladder is easy to get backwards, because reaching for the queue first is
+the cheapest thing to build and the worst thing for the member.
 """
 
 from __future__ import annotations

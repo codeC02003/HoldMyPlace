@@ -8,10 +8,10 @@ anyone remembering to update them.
 Four variants are exported, one per rung of the resolution ladder, because the
 paths that do *not* end in a claim are most of the design:
 
-  nearby     stock 14 km away — the item is pulled over, no refund, no wait
-  core       nothing in range — a claim, end to end
-  one_time   an opportunistic buy — refunded, substitutes shown
-  seasonal   a closed season with no alternatives — a bare refund
+  nearby     stock 14 km away, so the item is pulled over with no refund
+  core       nothing in range, so a claim, end to end
+  one_time   an opportunistic buy, so refunded with substitutes shown
+  seasonal   a closed season with no alternatives, so a bare refund
 
 For the claim variant, every deadline preset the offer permits is evaluated
 all the way through to a fulfillment decision, including the presets that turn
@@ -55,7 +55,7 @@ TODAY = date(2026, 10, 31)
 """Fixed 'now' for the demo. Nothing reads the wall clock.
 
 Set two months into the generated world so that some seasonal windows have
-already closed — the season-closed refusal is one of the paths worth showing,
+already closed. The season-closed refusal is one of the paths worth showing,
 and it does not exist on day one.
 """
 
@@ -84,7 +84,7 @@ MODE_MEMBER_COPY = {
     Mode.PICKUP_HOLD: "Ready at the front desk. We'll hold it five days.",
     Mode.BATCHED_ROUTE: "Going out with other deliveries in your area.",
     Mode.PAID_EXPRESS: "On a van already heading your way.",
-    Mode.EXECUTIVE_FREE: "On a van already heading your way — free, as an Executive member.",
+    Mode.EXECUTIVE_FREE: "On a van already heading your way, free as an Executive member.",
 }
 
 RUNG_LABELS = {
@@ -207,7 +207,7 @@ def _cart(catalog: dict[str, Sku], out_of_stock: Sku) -> list[dict[str, Any]]:
 #: already in line on the demo SKU.
 #:
 #: Sized to what would genuinely still be open. On a SKU replenished every three
-#: weeks, anyone who filed before the last receipt has already been served — so
+#: weeks, anyone who filed before the last receipt has already been served, so
 #: the queue holds recent filings, plus a few long-waiting claims that keep
 #: being passed over because their own deadlines are unreachable. Those are the
 #: ones that make the filter visible: they have waited longest and still get
@@ -266,7 +266,7 @@ def _evaluate_choice(
     exact: date | None = None,
     label: str | None = None,
 ) -> dict[str, Any]:
-    """What happens if the member picks `preset` — computed, not asserted."""
+    """What happens if the member picks `preset`. Computed, not asserted."""
     cancel_by = resolve_deadline(
         preset, TODAY, exact=exact, ceiling=offer.latest_cancel_by
     )
@@ -540,7 +540,7 @@ def _variant(
         )
 
     # A hand-typed date landing inside the estimate band, so the demo shows the
-    # middle verdict too — tight rather than impossible.
+    # middle verdict too, tight rather than impossible.
     inside_band: date | None = None
     if offer.estimate is not None and offer.estimate.band_days > 2:
         inside_band = offer.estimate.eta + timedelta(

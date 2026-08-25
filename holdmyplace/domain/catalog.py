@@ -49,14 +49,14 @@ class Lifecycle(str, Enum):
     """Returns on a calendar. Outside its window it is simply absent."""
 
     OPPORTUNISTIC = "opportunistic"
-    """One-time buy — the treasure hunt. Sells through and is gone."""
+    """One-time buy, the treasure hunt. Sells through and is gone."""
 
     DISCONTINUED = "discontinued"
     """Flagged for no further reorder. The asterisk on the shelf sign."""
 
 
 #: Lifecycles for which a claim may be offered at all. Anything absent from
-#: this set is ineligible by default — the allowlist *is* the fail-closed rule.
+#: this set is ineligible by default. The allowlist *is* the fail-closed rule.
 CLAIMABLE: frozenset[Lifecycle] = frozenset(
     {
         Lifecycle.CORE,
@@ -110,8 +110,8 @@ class Denial(str, Enum):
 #: Member-facing copy for each denial. The member is never shown a status code,
 #: and never told to wait for something that is not coming.
 DENIAL_COPY: dict[Denial, str] = {
-    Denial.ONE_TIME_BUY: "This was a one-time buy. Refunded — here are similar items.",
-    Denial.DISCONTINUED: "We're not restocking this one. Refunded — here are similar items.",
+    Denial.ONE_TIME_BUY: "This was a one-time buy. Refunded, and here are similar items.",
+    Denial.DISCONTINUED: "We're not restocking this one. Refunded, and here are similar items.",
     Denial.SEASON_CLOSED: "This one's out of season. We can tell you when it's back next year.",
     Denial.NO_RESTOCK_SIGNAL: "We can't tell when this will return, so we won't hold your place.",
     Denial.UNKNOWN_LIFECYCLE: "We can't confirm this will restock. Refunded in full.",
@@ -151,7 +151,7 @@ def assess(
     run on every out-of-stock line.
 
     `channel` is where the member ordered. Supplying it rejects a claim the
-    channel could never fill — a warehouse-only item cannot be restocked into a
+    channel could never fill. A warehouse-only item cannot be restocked into a
     delivery. Omitting it checks restock intent alone.
     """
     if channel is not None and channel not in sku.channels:
@@ -189,7 +189,7 @@ def stale_flag_candidates(
     """SKUs the item master calls claimable but that receipts say are dead.
 
     This is the one place the design admits it needs to distrust its own input.
-    Lifecycle flags go stale — a vendor stops shipping, a buyer moves on, and
+    Lifecycle flags go stale: a vendor stops shipping, a buyer moves on, and
     nobody updates the record. Reconciling declared status against actual
     receipt history surfaces the divergence for a human to resolve, and is
     worth doing on its own merits whether or not the queue ever ships.

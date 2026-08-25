@@ -9,7 +9,7 @@ The structural finding the model exists to expose: free claim delivery does not
 clear its own cost on merchandise margin. It clears only when membership renewal
 is counted, because merchandise is close to break-even at Costco and membership
 fees supply roughly half of operating income. That makes this a retention
-program wearing a fulfillment feature's clothes — and it means a fulfillment
+program wearing a fulfillment feature's clothes, and it means a fulfillment
 cost-per-stop metric will reject it correctly, every time, forever.
 """
 
@@ -29,7 +29,7 @@ class Source(str, Enum):
     """Reported by Costco or otherwise verifiable from outside."""
 
     POLICY = "policy"
-    """A lever this design sets. Not a fact — a choice."""
+    """A lever this design sets. Not a fact, a choice."""
 
     ESTIMATED = "estimated"
     """A defensible outside guess. Wrong by some margin, but bounded."""
@@ -56,7 +56,7 @@ class Assumptions:
     remaining_tenure_years: Decimal = pct("6.0")
     support_contact_cost: Decimal = money("5.50")
 
-    # -- unknown — the conclusion rests on these --------------------------
+    # -- unknown: the conclusion rests on these --------------------------
     topup_incrementality: Decimal = pct("0.30")
     """Share of a top-up basket that is new demand rather than pull-forward."""
 
@@ -146,7 +146,7 @@ def renewal_value(tier: Membership, a: Assumptions) -> Decimal:
     """Expected value of a renewal-probability lift on one member.
 
     Undiscounted on purpose. A discount rate would add precision the input
-    does not have — `renewal_lift_pp` is a guess, and dressing a guess in a
+    does not have. `renewal_lift_pp` is a guess, and dressing a guess in a
     net-present-value calculation makes it look like a measurement.
     """
     lift = a.renewal_lift_pp / Decimal("100")

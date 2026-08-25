@@ -117,11 +117,11 @@ class Resolution:
         if self.rung is Rung.OTHER_WAREHOUSE:
             assert self.source is not None
             return (
-                f"Found it at our {self.source.warehouse} warehouse — "
-                "we'll bring it over. No change to your order."
+                f"Found it at our {self.source.warehouse} warehouse. "
+                "We'll bring it over, no change to your order."
             )
         if self.rung is Rung.OTHER_CHANNEL:
-            return "It's available online — we'll ship it from there instead."
+            return "It's available online, so we'll ship it from there instead."
         if self.rung is Rung.CLAIM_QUEUE:
             return "Not in stock anywhere nearby. We can hold your place for the next delivery."
         if self.rung is Rung.SUBSTITUTE:
@@ -173,7 +173,7 @@ def resolve(
     """Walk the ladder and return the first rung that answers.
 
     `claim_available` is supplied by the caller rather than computed here,
-    because deciding it needs the eligibility read and the return estimate —
+    because deciding it needs the eligibility read and the return estimate,
     which this module deliberately knows nothing about. Sourcing answers "can
     the item be found now"; eligibility answers "will it come back".
     """

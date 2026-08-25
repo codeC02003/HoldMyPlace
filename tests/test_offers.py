@@ -1,7 +1,7 @@
 """What the member is shown.
 
 The behaviour these tests protect is the refund coming first, unconditionally,
-on every path — and deadlines being refused when they are set, not silently
+on every path, and deadlines being refused when they are set, not silently
 accepted and failed weeks later.
 """
 

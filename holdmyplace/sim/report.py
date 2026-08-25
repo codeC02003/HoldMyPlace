@@ -67,32 +67,38 @@ def render(results: Results, *, sensitivity: bool = False) -> str:
     out: list[str] = []
 
     out.append("")
-    out.append("HOLD MY PLACE — claim-queue simulation")
+    out.append("HOLD MY PLACE: claim-queue simulation")
     out.append(
         f"{cfg.days} days from {cfg.start:%b %-d %Y} · {cfg.n_skus} SKUs · seed {cfg.seed}"
     )
     out.append("")
 
     # -- the gate ---------------------------------------------------------
-    out.append(_rule("GATE ONE — is the promise keepable"))
+    out.append(_rule("GATE ONE: is the promise keepable"))
     out.append(_leader("Out-of-stock lines after payment", f"{r.oos_events:,}"))
     out.append(
         _leader(
-            "Addressable — SKU restocked within 30d",
+            "Addressable: SKU restocked within 30d",
             f"{r.gate_one_restockable:,} ({_pctf(r.addressable_rate)})",
         )
     )
     out.append(
         _leader(
-            "Covered — a claim was offered",
+            "Covered: a claim was offered",
             f"{r.offers_claimable:,} ({_pctf(r.coverage_rate)})",
         )
     )
     out.append(
         _leader(
-            "Promises kept — claims filed then filled",
-            f"{r.claims_filled:,} / {r.claims_created:,} "
+            "Promises kept, of claims that settled",
+            f"{r.claims_filled:,} / {r.settled_claims:,} "
             f"({_pctf(r.promise_keeping_rate)})",
+        )
+    )
+    out.append(
+        _leader(
+            "Still undecided at the horizon",
+            f"{r.claims_open_at_end:,} ({_pctf(r.undecided_rate)})",
         )
     )
     out.append(
@@ -108,6 +114,10 @@ def render(results: Results, *, sensitivity: bool = False) -> str:
     out.append(
         "  refunded with no claim offered, so there is no promise to break."
     )
+    out.append(
+        "  Claims still open at the horizon are undecided, so they are left out"
+    )
+    out.append("  of the promise rate rather than counted against it.")
     out.append("")
 
     # -- the ladder -------------------------------------------------------
@@ -170,7 +180,7 @@ def render(results: Results, *, sensitivity: bool = False) -> str:
     median = r.median_fill_days
     out.append(
         _leader(
-            "Median days, claim filed → arrival",
+            "Median days, claim filed -> arrival",
             f"{median:.0f}" if median is not None else "n/a",
         )
     )
@@ -181,7 +191,7 @@ def render(results: Results, *, sensitivity: bool = False) -> str:
     out.append(_leader("Released to the floor", f"{r.units_to_floor:,}", indent=4))
     out.append(
         _leader(
-            "Reserved but unreachable → floor",
+            "Reserved but unreachable -> floor",
             f"{r.units_reserved_unused:,}",
             indent=4,
         )
@@ -256,7 +266,7 @@ def render(results: Results, *, sensitivity: bool = False) -> str:
     out.append(_rule())
     verdict = "clears" if check.clears_on_merchandise else "does not clear"
     out.append(
-        _leader(f"Merchandise only — {verdict}", fmt(check.merchandise_only))
+        _leader(f"Merchandise only, {verdict}", fmt(check.merchandise_only))
     )
     out.append(_leader("With renewal value", fmt(check.with_renewal)))
     out.append("")
@@ -279,7 +289,7 @@ def render(results: Results, *, sensitivity: bool = False) -> str:
 
     # -- demand signal ----------------------------------------------------
     if r.demand_clusters:
-        out.append(_rule("DEMAND SIGNAL — top open clusters at horizon"))
+        out.append(_rule("DEMAND SIGNAL: top open clusters at horizon"))
         out.append(
             f"  {'SKU':<9} {'AREA':<5} {'OPEN':>5} {'≤21d':>5}  FORFEIT"
         )
@@ -304,7 +314,7 @@ def render(results: Results, *, sensitivity: bool = False) -> str:
     by_source: dict[econ.Source, list[str]] = {}
     for name, (source, note) in econ.PROVENANCE.items():
         value = getattr(r.assumptions, name)
-        marker = " ←" if name in econ.LOAD_BEARING else ""
+        marker = " <<" if name in econ.LOAD_BEARING else ""
         by_source.setdefault(source, []).append(
             _leader(f"{name}{marker}", f"{value}", indent=4) + f"   {note}"
         )
@@ -315,7 +325,7 @@ def render(results: Results, *, sensitivity: bool = False) -> str:
         out.append(f"  {source.value.upper()}")
         out.extend(rows)
     out.append("")
-    out.append("  ← load-bearing: plausible values here flip the conclusion.")
+    out.append("  << load-bearing: plausible values here flip the conclusion.")
     out.append("")
     return "\n".join(out)
 
@@ -324,7 +334,7 @@ def _sensitivity_block(r: Results, stop_cost: Decimal) -> list[str]:
     grid = econ.sensitivity(r.assumptions, stop_cost=stop_cost)
     incrementalities = [inc for inc, _ in grid[0][1]]
 
-    out = [_rule("SENSITIVITY — contribution per subsidized stop")]
+    out = [_rule("SENSITIVITY: contribution per subsidized stop")]
     header = "  lift\\inc " + "".join(f"{inc:>9.0%}" for inc in incrementalities)
     out.append(header)
     for lift, row in grid:
